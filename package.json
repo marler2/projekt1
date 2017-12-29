@@ -1,0 +1,23 @@
+{
+  "name": "animal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "externalJquery.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marler2/projekt1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marler2/projekt1/issues"
+  },
+  "homepage": "https://github.com/marler2/projekt1#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  }
+}

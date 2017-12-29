@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Animal game</title>
+    
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.js"/>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+        /** numQuestions pekar mot databasen
+        * JSON databasen som innehåller alla frågor
+        */
+
+        // var numQuestions;
+        // var Questions = string[];
+
+
+        // $('#yes').click(function(){
+        //     //läsa av vilken av radio knapparna som
+        //     //var ikryssad
+        //     let nextQuestion = Questions[Math.random()*numQuestions];
+        //     /** här är den som ändras eftersom servern får in fler frågor alla frågor */ 
+        //     //nästa fråga laddas in
+        //     $('#question').html(nextQuestion);
+
+        // });
+        
+        // $('#no').click(function(){
+        //     //läsa av vilken av radio knapparna som
+        //     //var ikryssad
+        //     let nextQuestion = Questions[Math.random()*numQuestions];
+        //     /** här är den som ändras eftersom servern får in fler frågor alla frågor */ 
+        //     //nästa fråga laddas in
+        //     $('#question').html(nextQuestion);
+
+
+        // });
+
+       /*  $('#animTreeButton').click(function(){
+               $('#animTreeLoader').load('animaltree.html');
+        }); */
+
+
+        /*först sparar vi alla resultat från utfrågningen, liksom tmeporärt,
+        antingen i en tempfil eller så kanske man kan spara det lokalt i minnet
+        på nåt sätt, som ett objekt eller va som helst,
+        
+        sen när sista frågan har nåtts så skickas det och sparas i det
+        binära trädet*/
+
+        /*måste iaf lösa det med att kunna posta med jquery*/
+
+        $('#submitResult').on('click', function(){
+            $.post( "animaltree.html", { species: "Dog", legs: "4", superspecies: "mammal" } );
+        });
+    });   
+    </script>
+</head>
+<body>
+
+    
+        <h1 id="question">What are you thinking of?</h1>
+        <div id="cBox">
+            <input type="submit" name="answer" value="Yes"/>
+            <input type="submit" name="answer" value="No"/>
+        </div>
+        <form id="POSTdata" method="POST" action="/">
+            <input type="text"><!-- här sparar nån slags div eller dyl-->
+        <button>send</button>
+        </form>
+        <hr>    
+        <div id="cBox">
+            <a id="treeLink" href="animaltree.html">animaltree</a>
+            <p>här ska hela trädet bara byggas ut, byggas på</p>
+            <input id="submitResult" type="submit" value="Submit result"/>
+        </div>
+</body>
+</html>

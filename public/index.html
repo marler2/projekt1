@@ -7,77 +7,117 @@
     
     <link rel="stylesheet" type="text/css" href="/main.css" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="jquery.js"/>
+    <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript">
-
         $(document).ready(function(){
+            
+           /*  *
+             *  post request 
+             */
 
-        /** numQuestions pekar mot databasen
-        * JSON databasen som innehåller alla frågor
-        */
+            function doPost(url, data, cbSuccess) {
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: cbSuccess
+                });                
+            }
 
-        // var numQuestions;
-        // var Questions = string[];
+            /**get request*/
 
+            /**ladda så många frågor som finns / har hämtats*/
 
-        // $('#yes').click(function(){
-        //     //läsa av vilken av radio knapparna som
-        //     //var ikryssad
-        //     let nextQuestion = Questions[Math.random()*numQuestions];
-        //     /** här är den som ändras eftersom servern får in fler frågor alla frågor */ 
-        //     //nästa fråga laddas in
-        //     $('#question').html(nextQuestion);
+            /**ajax vill att man gör allt inne i själva metoden*/
 
-        // });
-        
-        // $('#no').click(function(){
-        //     //läsa av vilken av radio knapparna som
-        //     //var ikryssad
-        //     let nextQuestion = Questions[Math.random()*numQuestions];
-        //     /** här är den som ändras eftersom servern får in fler frågor alla frågor */ 
-        //     //nästa fråga laddas in
-        //     $('#question').html(nextQuestion);
+            function doGet(url){
+                    $.ajax({ 
+                        type: 'GET', 
+                        url: url, 
+                        success: function (data) { 
+                            questionGenerator(data);
+                        }
+                    });
+            }
 
+            /**den här ska flyttas in i button clicken*/
+            doGet('questions');
 
-        // });
+          
+            /**uppdaterar tablen med nya frågor*/
 
-       /*  $('#animTreeButton').click(function(){
-               $('#animTreeLoader').load('animaltree.html');
-        }); */
+            function questionGenerator(arrayOfQuestions){
 
+                $('tr').each(function(index){
+                    $(this).text(arrayOfQuestions[index])
+                })
+            };
 
-        /*först sparar vi alla resultat från utfrågningen, liksom tmeporärt,
-        antingen i en tempfil eller så kanske man kan spara det lokalt i minnet
-        på nåt sätt, som ett objekt eller va som helst,
-        
-        sen när sista frågan har nåtts så skickas det och sparas i det
-        binära trädet*/
+            /**samla upp questionTable:ns innehåll och göra om det till en array som
+            skickas till servern*/
 
-        /*måste iaf lösa det med att kunna posta med jquery*/
+            function questionCollector(){
+                
+                let body = [];
 
-        $('#submitResult').on('click', function(){
-            $.post( "animaltree.html", { species: "Dog", legs: "4", superspecies: "mammal" } );
-        });
-    });   
-    </script>
+                $('#questionTable').each(function(){
+                    $('tr').each(function(){
+                        body.push($(this).text());
+                    })
+                });
+
+                return body;
+            };
+            
+            /**
+             *  Submit click event 
+             */
+
+            $('#btnSubmit').click(function() {
+
+                /**samla upp alla frågor som redan står där*/
+                /**question collector ger en array så frågan är om det går att skicka den...*/
+
+                doPost('/questions', questionCollector(), function() {
+                    alert(`You posted successfully!`);
+                });
+                
+                //requesta frågor, få tillbaka en array av json objekt
+                let nextQuestions = JSON.parse(doGet('/questions'));
+
+                /*if nextQuestions.length > 5 så trimma den till bara fem*/
+
+                if(nextQuestions.length > 5){
+                    nextQuestions.slice(0,5);
+                    //nextQuestions.slice(1,5);
+                }
+
+                questionGenerator(nextQuestions.length, nextQuestions);
+
+            });
+        });   
+    </script>    
 </head>
 <body>
+    <h1 id="question">What are you thinking of?</h1>
+    <div id="cBox">
+        <!-- <input type="submit" name="answer" value="Yes"/> -->
+        <!-- <input type="submit" name="answer" value="No"/> -->
 
-    
-        <h1 id="question">What are you thinking of?</h1>
-        <div id="cBox">
-            <input type="submit" name="answer" value="Yes"/>
-            <input type="submit" name="answer" value="No"/>
-        </div>
-        <form id="POSTdata" method="POST" action="/">
-            <input type="text"><!-- här sparar nån slags div eller dyl-->
-        <button>send</button>
-        </form>
-        <hr>    
-        <div id="cBox">
-            <a id="treeLink" href="animaltree.html">animaltree</a>
-            <p>här ska hela trädet bara byggas ut, byggas på</p>
-            <input id="submitResult" type="submit" value="Submit result"/>
-        </div>
+        <!-- hur binder man yes och no till frågorna -->
+        <table id="questionTable">
+            <tr><td>fråga 1</td></tr>
+            <tr><td>fråga 2</td></tr>
+            <tr><td>fråga 3</td></tr>
+            <tr><td>fråga 4</td></tr>
+            <tr><td>fråga 5</td></tr>
+        </table>
+        <label class="question">Question</label>
+        <input id="data" name="data" type="text" value="SOME DATA THAT WILL BE SENT" />
+        <button id="btnSubmit" type="text">Send</button>
+    </div>         
+    <div id="jsondiv"></div>
 </body>
 </html>

@@ -7,173 +7,63 @@ let express = require('express'),
     bodyParser = require('body-parser'),
     app = express();
 
-app.use(express.static(path.join(__dirname+'/public')));
-
-/** dom här två metoderna funkar nog inte ihop */
-
-
-http.createServer(function(req, res){
-    if(req.method === 'GET') {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        fs.createReadStream('./public/index.html', 'UTF-8').pipe(res);
-    } else if (req.method === 'POST') {
-        let body = '';
-        
-        req.on('data', function(DATA){
-            body += DATA;
-        });
-
-        req.on('end', function(){
-            fs.appendFile('/public/data.txt', body, function(){
-                console.log('Wrote to file');
-            });
-        });
-    }
-});
+app.use(express.static(path.join(__dirname + '/public')));
 
 
 app.listen(8000, 'localhost', function(){
     console.log('App listening on port 8000');
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* var options = {
-    hostname: 'en.wikipedia.org',
-    port: 443,
-    path: '/wiki/George_Washington',
-    method: 'GET'
-};
-
-let req = https.request(options, function(res){
-    let responseBody= '';
-    console.log('Init...');
-    console.log(`Server Status: ${res.statusCode}`);
-    console.log('Response Headers: %j', res.headers);
-    
-    res.setEncoding('UTF-8');
-
-    res.on('data', function(DATA){
-        responseBody += DATA;
-    });
-    res.on('end', function(){
-        fs.writeFile("George_washington.html", responseBody, function(err){
-            if(err){
-                throw err;
-            }
-            console.log('file has been downloaded!');
-        });
-    });
-});
-
-req.on('error', function(err){
-    console.log(`problem with request: ${err.message}`);
-});
-
-//måste lägga till end, annars så slutför den aldrig
-
-//data är en stream och liksom inbyggd
-
-req.end();
-
-
-/** man kan säkert använda detta ihop
- * med att man gör som en temporär fil 
- * i den personens minne, eller
- */ 
-
-
-
-
-
-
-
-
-
-
-
-
 /* express enskilda routs */
 
 
 /** path.join för att låta express/node hitta den absoluta pathen till filen */
-/* 
-app.get('/', function(req, res){
-    res.sendFile(path.join(__dirname+'/index.html'));
-});
-
-app.get('/main.css', function(req, res){
-    res.sendFile(path.join(__dirname+'/main.css'));
-});
-
-app.get('/animaltree.html', function(req, res){
-    res.sendFile(path.join(__dirname+'/animaltree.html'));
-})
-*/ 
-
 /** för att göra en post så använder man sig bara av req parametern */
-/* app.get( ,function(req, res){
 
-}); */
+var questions = 'name : John';
 
-
-
-
-
-
-
-// = NODE
-//let http = require('http');
-// http.createServer(function (request, response){
-
-//     response.writeHead(200, {'Content-type':'text/plain'});
-
-//     response.end('Hello World\n');
-
-// }).listen(5000, 'localhost');
-
-// parametrarna för listen är (port, url) */
-
-//console.log('Server running at Localhost...');
+let testArrayOfQuestions = [
+    'Does it have fur?',
+    'Does it live on land?',
+    'Does it bark?',
+    'Does it live in the forest?',
+    'Does it fly?'
+];
 
 
-//ÖVRIGT:
+//var questions = '{ "name":"John", "age":30, "city":"New York"}';
 
-/* app.post('/receive', function(request, respond) {
+
+/**
+ * Responds with 5 random questions
+ */
+app.get('/questions', function(req, res) {
+    
+        res.json(testArrayOfQuestions);
+
+});
+
+/**
+ * 
+ */
+app.get('/guess', function(req, res) {
+    res.json(questions);
+});
+
+
+/**
+ * Saves answer to 5 questions with answers and new animal
+ */
+app.post('/questions', function(req, res) {
     var body = '';
-    filePath = __dirname + '/public/data.txt';
-    request.on('data', function(data) {
+
+    req.on('data', function(data) {
         body += data;
     });
 
-    request.on('end', function (){
-        fs.appendFile(filePath, body, function() {
-            respond.end();
-        });
+    req.on('end', function () {
+        body = JSON.parse(body);
+
+        res.json(body);
     });
 });
- */

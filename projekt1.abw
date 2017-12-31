@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE abiword PUBLIC "-//ABISOURCE//DTD AWML 1.0 Strict//EN" "http://www.abisource.com/awml.dtd">
+<abiword template="false" xmlns:ct="http://www.abisource.com/changetracking.dtd" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:math="http://www.w3.org/1998/Math/MathML" xid-max="49" xmlns:dc="http://purl.org/dc/elements/1.1/" fileformat="1.1" xmlns:svg="http://www.w3.org/2000/svg" xmlns:awml="http://www.abisource.com/awml.dtd" xmlns="http://www.abisource.com/awml.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" version="3.0.2" xml:space="preserve" props="dom-dir:ltr; document-footnote-restart-section:0; document-endnote-type:numeric; document-endnote-place-enddoc:1; document-endnote-initial:1; lang:sv-SE; document-endnote-restart-section:0; document-footnote-restart-page:0; document-footnote-type:numeric; document-footnote-initial:1; document-endnote-place-endsection:0">
+<!-- ======================================================================== -->
+<!-- This file is an AbiWord document.                                        -->
+<!-- AbiWord is a free, Open Source word processor.                           -->
+<!-- More information about AbiWord is available at http://www.abisource.com/ -->
+<!-- You should not edit this file by hand.                                   -->
+<!-- ======================================================================== -->
+
+<metadata>
+<m key="abiword.date_last_changed">Sat Dec 30 16:54:36 2017
+</m>
+<m key="abiword.generator">AbiWord</m>
+<m key="dc.date">Sat Dec 30 09:30:54 2017
+</m>
+<m key="dc.format">application/x-abiword</m>
+</metadata>
+<rdf>
+</rdf>
+<history version="14" edit-time="6234" last-saved="1514649276" uid="913b13fe-ed3b-11e7-925f-9db0bca28c35">
+<version id="1" started="1514622654" uid="c06d6dca-ed3b-11e7-925f-9db0bca28c35" auto="0" top-xid="33"/>
+<version id="14" started="1514643451" uid="bc78e9d6-ed79-11e7-805f-84879d0c82f2" auto="0" top-xid="39"/>
+</history>
+<styles>
+<s type="P" name="List Paragraph" basedon="_Normal" props="margin-left:36.000000pt"/>
+<s type="P" name="_Normal" basedon="Normal"/>
+<s type="P" name="Normal" basedon="Normal" followedby="Current Settings" props="font-weight:normal; font-family:Times New Roman; margin-top:0pt; font-style:normal; margin-left:0pt; text-align:left; lang:ar-SA; text-decoration:none; text-indent:0in; margin-bottom:8.000000pt; widows:2; margin-right:0pt; text-position:normal; font-variant:normal; color:000000; line-height:1.079167; bgcolor:transparent; font-size:11.000000pt; font-stretch:normal"/>
+<s type="C" name="Default Paragraph Font" basedon="Normal"/>
+<s type="P" name="No List" basedon="Normal"/>
+<s type="P" name="Normal Table" basedon="Normal"/>
+</styles>
+<lists>
+<l id="100" parentid="0" type="255" start-value="1" list-delim="%L" list-decimal="."/>
+</lists>
+<pagesize pagetype="A4" orientation="portrait" width="8.267717" height="11.692913" units="in" page-scale="1.000000"/>
+<section xid="1" props="page-margin-right:0.984028in; page-margin-bottom:0.984028in; page-margin-left:0.984028in; columns:1; page-margin-top:0.984028in; column-line:off">
+<p xid="2">20 question – Guess the Animal.</p>
+<p xid="3"><c></c><c></c></p>
+<p xid="4"><c props="lang:en-US">You should develop an application that can guess the animal you are thinking about. The app will ask you a number of questions and try to guess what animal you are thinking about; the questions must be a yes or no answer. It will learn by its mistakes; when the app has guessed wrong it will ask “What animal did you think of?” and then “With what question could you distinguish a “animal1” from a “animal2”?” Where animal1 is the animal the app guessed and animal2 the animal you thought about.</c><c props="lang:en-US"></c></p>
+<p xid="5"><c props="lang:en-US">Begin with knowing one animal, and then play the game so the app learns more questions and more animals.</c><c props="lang:en-US"></c></p>
+<p xid="6"><bookmark type="start" name="_GoBack" xid="7"/><bookmark xml:id="" type="end" name="_GoBack" xid="8"/></p>
+<p xid="9"><c props="lang:en-US">Exampel run:</c><c props="lang:en-US"></c></p>
+<p xid="10"><c props="lang:en-US">Think of an animal, press return when you are done!</c><c props="lang:en-US"></c></p>
+<p xid="11"><c></c><c></c></p>
+<p xid="38">- börja med en fråga och ett djur</p>
+<p xid="39">- man knyter alla frågor till ett eller flera djur</p>
+<p xid="42"><c></c>-  max antal frågor 5</p>
+<p xid="41">- frågorna slumpas fram ur tillgängliga frågor</p>
+<p xid="36">- för varje fråga som får ett positivt svar ges djuren som är knutna till frågan +1</p>
+<p xid="44"><c props="font-family:Times New Roman; font-size:11pt; color:000000; text-decoration:none; text-position:normal; font-weight:normal; font-style:normal; lang:sv-SE">- när alla frågor är ställda gissar applikationen på det djur som fått högst poäng utifrån frågorna. (Om flera har samma poäng slumpas mellan dessa)</c></p>
+<p xid="49"><c></c>- därefter (om applikationen gissade fel) ställer den frågan hur man kan särskilja dessa två djur åt. Frågan och svaret på denna knyts därefter till dessa två djur.</p>
+<p xid="45">- den sparar alla svar och uppdaterar/overridear för djuret som man gissar på</p>
+<p xid="37"><c></c></p>
+<p xid="12"><c props="lang:en-US">Does it have four legs? (Y/N)		(Cat, Dog, Lion, Horse, .... )</c></p>
+<p xid="13"><c props="lang:en-US">Y</c><c props="lang:en-US"></c></p>
+<p xid="14"><c props="lang:en-US">Does it have fur? (Y/N)                    	(Cat, Lion, Dog)</c></p>
+<p xid="15"><c props="lang:en-US">Y</c><c props="lang:en-US"></c></p>
+<p xid="16"><c props="lang:en-US">Does it bark? (Y/N)           		(Dog)</c></p>
+<p xid="17"><c props="lang:en-US">N</c><c props="lang:en-US"></c></p>
+<p xid="18"><c props="lang:en-US">Is it a cat?  </c></p>
+<p xid="19"><c props="lang:en-US">N</c><c props="lang:en-US"></c></p>
+<p xid="20"><c props="lang:en-US">What animal did you think of?</c><c props="lang:en-US"></c></p>
+<p xid="21"><c props="lang:en-US">Lion</c><c props="lang:en-US"></c></p>
+<p xid="22"><c props="lang:en-US">With what question could you distinguish a cat from a lion?</c><c props="lang:en-US"></c></p>
+<p xid="23"><c props="lang:en-US">Does the male have a </c><c props="font-family:Times New Roman; font-size:11pt; color:000000; text-decoration:none; text-position:normal; font-weight:normal; font-style:normal; lang:en-US">mane?  	(knyter frågan till djuret)</c></p>
+<p xid="24"><c props="lang:en-US">What would the right answer be for a lion? (Y/N)</c><c props="lang:en-US"></c></p>
+<p xid="25"><c props="lang:en-US">Y				(vilket svar frågan skall ha för att man ska ha rätt)</c></p>
+<p xid="47"><c props="lang:en-US">				(ja för lejon, nej för katt, den binder svaret för båda djuren)</c></p>
+<p xid="48"><c props="lang:en-US">				</c></p>
+<p xid="26"><c></c><c></c></p>
+<p xid="34"><c></c></p>
+<p xid="35"><c></c></p>
+<p xid="27"><c props="lang:en-US">You should base your project on following technics.</c><c props="lang:en-US"></c></p>
+<p level="0" listid="100" parentid="0" style="List Paragraph" xid="28" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"><field level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" xid="29" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"></field><c level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt">	</c><c level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"></c><c props="lang:en-US">HTML, CSS, JavaScript.</c></p>
+<p level="0" listid="100" parentid="0" style="List Paragraph" xid="30" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"><field level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" xid="31" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"></field><c level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt">	</c><c level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"></c><c props="lang:en-US">JSON and MongoDB (opt)</c></p>
+<p level="0" listid="100" parentid="0" style="List Paragraph" xid="32" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"><field level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" xid="33" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"></field><c level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt">	</c><c level="0" listid="100" parentid="0" style="List Paragraph" type="list_label" props="text-indent:-18.000000pt; field-font:NULL; margin-left:36.000000pt"></c><c props="lang:en-US">Node.js and/or JQuery and/or Angular</c></p>
+</section>
+</abiword>

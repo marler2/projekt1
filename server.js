@@ -1,26 +1,9 @@
 let express = require('express'),
     path = require('path'),
-    fs = require('fs'),
     url = require('url'),
-    https = require('https'),
-    http = require('http'),
-    bodyParser = require('body-parser'),
     app = express();
 
 app.use(express.static(path.join(__dirname + '/public')));
-
-
-app.listen(8000, 'localhost', function(){
-    console.log('App listening on port 8000');
-});
-
-/* express enskilda routs */
-
-
-/** path.join för att låta express/node hitta den absoluta pathen till filen */
-/** för att göra en post så använder man sig bara av req parametern */
-
-var questions = 'name : John';
 
 let testArrayOfQuestions = [
     'Does it have fur?',
@@ -30,40 +13,78 @@ let testArrayOfQuestions = [
     'Does it fly?'
 ];
 
+let returnArrayOfQuestions = [];
 
-//var questions = '{ "name":"John", "age":30, "city":"New York"}';
+let returnRandomString = function (questionArray){
 
+    /** random index for selecting a element in an array
+     *  if the array already contains the element it searches for a new one
+     */
+
+    let randomQuestion = '';
+    let returnArr = [];
+    let randomIndex;
+
+    for(let i = 0; i < questionArray.length; i ++){
+
+        if(questionArray[i] == ''){
+            break;
+        }
+        randomIndex = Math.floor(Math.random()*questionArray.length);
+        randomQuestion = questionArray[randomIndex];
+        
+        if(returnArr.includes(randomQuestion)){
+            do{
+                randomIndex = Math.floor(Math.random()*questionArray.length);
+                randomQuestion = questionArray[randomIndex];
+            }while(returnArr.includes(randomQuestion));
+        }
+        returnArr.push(randomQuestion);
+    }
+    return returnArr;
+};
 
 /**
  * Responds with 5 random questions
  */
 app.get('/questions', function(req, res) {
     
-        res.json(testArrayOfQuestions);
-
+        /** här är response en array */
+        let response = returnRandomString(testArrayOfQuestions);
+        res.send(JSON.stringify(response));
 });
 
 /**
- * 
+ * Responds with a random guess
+ * den ska liksom söka igenom namnen på alla jsonobjekt
+ * och skicka tillbaka en sträng i formatet 'är det en '+jsonObjekt.name+'?'
  */
-app.get('/guess', function(req, res) {
+/* app.get('/guess', function(req, res) {
     res.json(questions);
-});
+}); */
+
 
 
 /**
  * Saves answer to 5 questions with answers and new animal
  */
-app.post('/questions', function(req, res) {
-    var body = '';
+
+app.post('/addQuestions', function(req, res) {
+
 
     req.on('data', function(data) {
-        body += data;
+        returnArrayOfQuestions += data;
     });
 
     req.on('end', function () {
-        body = JSON.parse(body);
-
-        res.json(body);
+        /** när submitten har kommit in så skickar man tillbaka nya frågor */
+        res.json('successful submit');
+        console.log(JSON.parse(returnArrayOfQuestions));
+        returnArrayOfQuestions = [];
     });
 });
+
+app.listen(8000, 'localhost', function(){
+    console.log('App listening on port 8000');
+});
+

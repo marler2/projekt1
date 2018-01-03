@@ -5,18 +5,27 @@
     border: 0px;
     width: 100%;
     font-size:20px;
-    height: 10em;
+    height: 20em;
     font-family: Arial, Helvetica, sans-serif;
 }
 
 input {
-    border: 1px solid #cccccc;
+    border: 1px solid #000000;
 }
 
 #question {
-    font-family: Arial, Helvetica, sans-serif;
     text-align: center;
-    margin: 50px auto;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#questionForm {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: left;
+    margin: 10px auto;
+}
+
+#questionForm input {
+    text-align: right;
 }
 
 #treeLink {

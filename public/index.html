@@ -4,65 +4,54 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Animal game</title>
-    
     <link rel="stylesheet" type="text/css" href="/main.css" />
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="jquery.js"></script>
        
 </head>
 <body>
     <h1 id="question">Animal quiz</h1>
-    <div id="cBox">
         <table id="questionForm">
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>
-            <tr></tr>         
+            <tr id="questionNode"></tr>       
         </table>
-        <label class="question">Question</label>
-        <input id="data" name="data" type="text" value="SOME DATA THAT WILL BE SENT" />
-        <button id="btnSubmit" type="text">Send</button>
-    </div>         
-    <div id="jsondiv"></div>
+        <input type="submit" id="btnSubmit" value="Send question(s)">
     <script type="text/javascript">
         $(document).ready(function(){
-            
-            /**post request, gör arrayn, till JSON innan den skickas*/
 
-           function doPost(data){
-                $.post('/addQuestions', JSON.stringify(data),function(result){
-                    console.log(result);
+           function doPost(url, data){
+                $.post(url, JSON.stringify(data),function(result){
+                    questionGenerator(JSON.parse(result));
                 })
             };
 
             /**get request*/
-
-            function doGet(){
-                    $.get('/questions', function(data, status){ 
+            
+            function doGet(url){
+                    $.get(url, function(data, status){ 
                         questionGenerator(JSON.parse(data));
                     });
             }
             
             /**uppdaterar tablen med nya frågor*/
 
-            function questionGenerator(arrayOfQuestions){
-                $('tr').each(function(index){
-                    $(this).html("<td><p id='question"+index+"'>"+arrayOfQuestions[index]+
-                        "</p><input type='text' name='question"+index+"'></td><br/>");
-                });
-            };
+            function questionGenerator(Question){
 
-            /*  $('input[name="text"]:checked').val(); */
+                $('#questionNode tr').remove();
+
+                let html = "";
+                    
+                html = "<tr><td><p id='question'>"+Question+
+                            "</p><input type='text' name='question'></td></tr><br/>"
+                    
+                $('#questionNode').append(html);
+
+            };
 
             /**samla upp questionTable:ns innehåll och göra om det till en array som
             skickas till servern*/
 
-            console.log($('input:text').val());
-
             function questionCollector(){
                 
-               
                 let body = [];
                 let answerArray = [];
 
@@ -70,31 +59,34 @@
                     answerArray.push($(this).val());
                 });
 
-                $('tr').each(function(index){
+                $('#questionNode tr').each(function(index){
                             body.push($(this).text()+answerArray[index]);
-                    });
+                    });  
+
                 return body;
             };
             
             /** detta händer när sidan laddas*/
-            /**uppdaterar frågorna*/
+            /**uppdaterar frågefältet*/
 
-            doGet();
+            doGet('/questions');
+
 
               /**
              *  Submit click event 
              */
 
-            $('#btnSubmit').click(function() {
+            $('#btnSubmit').click(function(event) {
 
-                /**samla upp alla frågor som redan finns*/
-                doPost(questionCollector());
-                
-                /**uppdaterar frågorna*/
-                doGet();
+                event.preventDefault();
+
+                /**samla upp frågor som finns
+                 * skickar dom till servern så den kan processa det
+                */
+
+                doPost('/questions',questionCollector());
 
             });
-
         });   
     </script> 
 </body>

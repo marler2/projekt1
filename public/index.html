@@ -18,6 +18,22 @@
     <script type="text/javascript">
         $(document).ready(function(){
 
+            /** om gissat rätt så komma upp ett grattis med
+            hur många frågor det tog att komma dit, antalet frågor
+            sköts av servern, men meddelandet sköts här*/
+
+            /**lägg in promises .then(success(), fail())
+            anonyma funktioner*/
+
+            /**separera ut jqueryn och serverns javascript i andra
+            filer !!*/
+
+            /*  $(document).on("keypress", function (e) {
+                    if(e.which == "enter"){
+                        doGet('/questions');
+                    }
+                }); */
+
            function doPost(url, data){
                 $.post(url, JSON.stringify(data),function(result){
                     questionGenerator(JSON.parse(result));
@@ -87,6 +103,7 @@
                 doPost('/questions',questionCollector());
 
             });
+
         });   
     </script> 
 </body>

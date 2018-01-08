@@ -1,3 +1,159 @@
-att göra
-    - hur frågorna integreras med svaren man ger dom
-    - 
+Börjar med ett djur
+
+svarar man nej så ombeds man ange vilket djur det var
+man ombeds ange en fråga som skiljer det djuret från det som servern gissade på
+
+databasen lägger in frågan och ja svaret mot det djur som har ja som svar
+		    	       nej svaret mot det djur som har nej som svar
+
+
+-------------------------------
+
+ska det vara embeddat i varje dokument...? nästa fråga alltså
+eller ska det liksom vara referenced?
+
+första rundan:
+-------------
+nod1: är det en hund?
+svar: N
+servern frågar: vad är det för djur?
+svar: katt
+
+servern skickar en array av frågor:
+
+['hur skiljer man på dom två djuren?', 'vilket är rätt svar för ' + djuret + '?']
+
+så börjar man förbereda ett formulär som skickas in,
+svaren kan lagras lokalt och sen skickar man allt som en array av formen:
+
+['skäller det?', 'N']
+
+man kan därför använda samma index på båda arraysen för att svar och fråga ska förhålla sig till varandra
+
+---------------
+andra rundan:
+---------------
+
+nod1: skäller det?
+svar: N
+nod2: är det en katt?
+svar: N
+servern frågar: vad är det för djur?
+svar: lejon
+
+servern skickar en array av frågor:
+
+['hur skiljer man på dom två djuren?', 'vilket är rätt svar för ' + lejon + '?']
+
+så börjar man förbereda ett formulär som skickas in,
+svaren kan lagras lokalt och sen skickar man allt som en array av formen:
+
+['ryter det?', 'Y']
+
+----------------
+tredje rundan:
+----------------
+nod1: skäller det?
+svar: N
+nod2: ryter det?
+svar: N
+nod3: är det en hund?
+svar: N
+servern frågar: vad är det för djur?
+svar: ekorre
+
+servern skickar en array av frågor:
+
+['hur skiljer man på dom två djuren?', 'vilket är rätt svar för ' + 'ekorre' + '?']
+
+så börjar man förbereda ett formulär som skickas in,
+svaren kan lagras lokalt och sen skickar man allt som en array av formen:
+
+['klättrar den i träd?', 'Y']
+
+
+---------------------
+fjärde rundan:
+-------------------
+nod1: skäller det?
+svar: N
+nod2: ryter det?
+svar: N
+
+
+===========================================================
+
+treenum = trädindex är det man sorterar efter, db.collection.find({}).sort(1) (ascendning)
+	så följer man bara frågorna efter listan, alla udda tal är N alla jämna tal är Y
+	alltså för nod1 så : (queryArray[1] = Y) (queryArray[2] = N) 
+		   nod2 så : (queryArray[3] = Y) (queryArray[4] = N)
+	OSV.
+
+alltså, om man har kommit fram till frågan om vad det är, så har vi två val, om Y så går vi på det indexet
+som direkt följer, om N så hoppar vi över en
+
+
+children: [
+	Y: '',
+	N: ''
+	]
+
+children[0]=Y
+children[1]=N
+
+
+{
+	_id: ObjectID(asdfh7657567l5k6jl56j7l567j),
+	treeIndex: 1,
+	value: 'Skäller den?',
+	children: [
+		'Ryter den?',
+		'Klättrar den i träd?'
+	]
+}
+	
+	OM VI SVARAR JA SÅ:
+
+{
+	_id: ObjectID(asdfh7657567l5k6jl56j7l567j),
+	treeIndex: 2,
+	value: 'Ryter den?',
+	children: [
+		'Lejon',
+		'Klättrar den i träd?,
+	]
+}
+
+
+
+	FORMEN AV ETT DJUR HAR EJ CHILDREN
+
+{
+	_id: ObjectID(asdfh7657567l5k6jl56j7l567j),
+	treeindex: 3,
+	value: 'Lejon'
+}
+
+
+- för trädindex är vid laddningen av sidan, sen använder man bara barn/förälder länkarna
+- har länk itll föräldern eller länk till barnen
+- vid ett svar på en fråga så skickar man Y eller N länken som pekar mot nästa fråga som en query till get
+  och tillbaka får man nästa fråga som i sin tur har länkar till sina barn osv.
+
+------------------------------------------------------------------
+
+för att serverns sortering av input och databashantering krävs:
+
+------------------------------------------------------------------
+
+inputen tas emot, 
+    man tar ut vilken av childnoderna man ska söka i databasen efter
+
+childnodsobjektet hämtas ut,
+    man tar ut värdet på den, om den inte har några children så är det ett
+    djur och det avgör hur vi ska formatera strängen tillbaka till frontenden
+    om ja på ett djur så gratulerar vi
+
+    DETTA UPPREPAS TILLS VI FÅTT ETT NEJ PÅ ETT DJUR
+
+sen händer detta ...:

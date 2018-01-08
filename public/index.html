@@ -36,7 +36,17 @@
 
            function doPost(url, data){
                 $.post(url, JSON.stringify(data),function(result){
-                    questionGenerator(JSON.parse(result));
+                    //questionGenerator(doGet('/questions'));
+                    if(JSON.parse(result)=='ERROR'){
+                        /**gör nånting så att användaren blir medveten om 
+                         * vad för fel den har gjort
+                        */
+                    }else{
+                        /**här har vi fått tillbaka en query string från 
+                         * servern
+                        */
+                        questionGenerator(JSON.parse(result));
+                    }
                 })
             };
 
@@ -44,7 +54,9 @@
             
             function doGet(url){
                     $.get(url, function(data, status){ 
-                        questionGenerator(JSON.parse(data));
+                        console.log(data);
+                        /**selecta books från data objektet, första i arrayn och dess titel */
+                        questionGenerator(data['books'][0].title);
                     });
             }
             
@@ -69,16 +81,19 @@
             function questionCollector(){
                 
                 let body = [];
-                let answerArray = [];
+
 
                 $('input:text').each(function(){
-                    answerArray.push($(this).val());
+                    body.push($(this).val());
+                    //answerArray.push($(this).val());
                 });
 
                 $('#questionNode tr').each(function(index){
-                            body.push($(this).text()+answerArray[index]);
+                    body.push($(this).text());            
+                    //body.push($(this).text()+answerArray[index]);
                     });  
 
+                    console.log(body);
                 return body;
             };
             

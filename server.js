@@ -1,7 +1,11 @@
 let express = require('express'),
     path = require('path'),
     url = require('url'),
-    app = express();
+    app = express(),
+    mongo = require('mongodb'),
+    mongoClient = mongo.MongoClient,
+    mongoUrl = 'mongodb://localhost:27017/books',
+    mongoId = require('mongodb').ObjectID;
 
 app.use(express.static(path.join(__dirname + '/public')));
 
@@ -41,13 +45,13 @@ let postGuess = '';
 
 /** kolla vad strängen slutar på för bokstav */
 
-let answerChecker = function (answerString){
+let answerChecker = function (answerArray){
 
-    let lastCharacter = answerString.charAt(answerString.length-1);
+    let answerChar = answerArray.answer;
 
-    if(lastCharacter == 'N'){
+    if(answerChar == 'N'){
         return false;
-    }else if(lastCharacter == 'Y'){
+    }else if(answerChar == 'Y'){
         return true;
     }else{
         /** om det händer något här så får man skicka någon slags 
@@ -57,7 +61,7 @@ let answerChecker = function (answerString){
     }
 }
 
-/** sorterar ut EN FRÅGA fråga från en given array 
+/** sorterar ut EN FRÅGA från en given array 
  *  */
 
 let returnRandomString = function (questionArray){
@@ -82,56 +86,133 @@ let returnRandomString = function (questionArray){
 
 app.get('/questions', function(req, res) {
         /** här är response en array */
-        let response = returnRandomString(testArrayOfQuestions);
-        res.send(JSON.stringify(response));
+
+        mongoClient.connect(mongoUrl, function (err, db){
+            if(err){ console.log(err.message);
+            }else{
+            mongo.DB = db.db('books');
+            let collection = mongo.DB.collection('bookCollection');
+            collection.find({}).limit(1).toArray(
+                function (err, results) {
+                    res.send({
+                        books: results
+                    })
+                }
+            );
+        }
+        });
+/*         let response = findQuestions();
+        console.log(findQuestions());
+        res.send(JSON.stringify(response)); */
 });
 
-app.get('/guess', function(req, res) {
+let treeIndex = 1;
+let createNode = function(treeNum, value, children){
 
-    res.send(JSON.stringify('Is it a '+ animalGuessArray[0]+'?'));
-});
-
-app.post('/guess', function(req, res){
-
-    /** ska kolla strängen som kommer in om den slutar på N 
-     * om den slutar på N så måste man göra en ny get request från
-     * servern, då kommer det behövas en fråga
-    */
-
-    req.on('data', function(data){
-        postGuess += JSON.parse(data);
-    });
-
-    req.on('end', function(){
-            res.json(answerChecker(postGuess));
-    });
-});
-
-/**
- * Saves answer to 5 questions
- */
+    return {
+        treeNum: treeIndex++,
+        value: value,
+        children: {
+            'Y' : children[0],
+            'N' : children[1]
+        }
+    }
+};
 
 app.post('/questions', function(req, res) {
 
-    /** obs! inte säkert att man kan ha något här,
-     * eller rättare sagt att det alls körs
-     */
+    let collector = [];
+    let queryString = '';
 
-    returnArrayOfQuestions = [];
+    /** får in arrayn med frågan och svaret från frontenden */
 
     req.on('data', function(data) {
-        returnArrayOfQuestions += data;
+        collector = JSON.parse(data);
     });
 
     req.on('end', function () {
-        /** när submitten har kommit in så skickar man tillbaka nya frågor */
+        let response = "success";
+        let queryString = '';
 
-        console.log('inkommande fråga: ' + JSON.parse(returnArrayOfQuestions));
-        returnArrayOfQuestions = [];
-        let response = returnRandomString(testArrayOfQuestions);
-        console.log('utåtgående fråga: '+ response);
-        res.send(JSON.stringify(response));
+        /** det är först här vi sparar noderna i objektform
+         * inputen från frontenden är en array, det kommer trots allt alltid
+         *  bara vara två svar
+         * frontend=array, databasobjektet=objekt med utförligare info
+         */
 
+
+        /** om vi har en fråga, dvs. längden är större än 0, servern är
+         * ju själv ansvarig för att skicka frågorna, så man kan anta
+         * att det inte går att få något annat fel här
+         */
+
+        if(collector[1].length>0){
+    
+            if(collector[0]=='Y'){
+
+                queryString = '{value: '+collector[1]+'}';
+           
+            }else if(collector[0]=='N'){
+                
+                 queryString = '{value: '+collector[1]+'}';
+                 
+            }else{
+                /** detta borde break:a hela funktionen */
+                res.send('ERROR');
+            }
+        }
+
+        /** här ska vi söka med queryStringen i databasen för att hitta childrenen till
+         * frågan
+         */
+
+        let returnAnimal = {};
+
+        mongoClient.connect(mongoUrl, function (err, db){
+            if(err){ console.log(err.message);
+            }else{
+            mongo.DB = db.db('books');
+            let collection = mongo.DB.collection('bookCollection');
+            collection.find(queryString).toArray(
+                function (err, results) {
+                    /** här har vi fått tillbaka ett objekt
+                    skicka tillbaka till*/
+
+                    returnAnimal = results.children.collector[0];
+                    
+                    // man kanske inte måste skicka tillbaka härifrån, man
+                    // kanske bara kan spara det som ett objekt och fortsätta
+                    // använda det på något sätt
+                    
+                    // res.send({
+                    //     books: results
+                    // });
+                }
+            );
+        }
+        });
+
+        
+
+        mongoClient.connect(mongoUrl, function (err, db){
+            if(err){
+                console.log("some problem with mongodb");
+            }else{
+                if(!mongo.DB){
+                    /** om redan connectad */
+                    mongo.DB = db.db('books');
+                }
+                let collection = mongo.DB.collection('bookCollection');
+                collection.insertOne(POSTquestion, function(err, results){
+                    if(err){
+                        res.send(err.message);
+                    }else{
+                        console.log(results.result);
+                        db.close();
+                    }
+                });
+            }
+        });
     });
 });
 

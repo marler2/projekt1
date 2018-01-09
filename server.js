@@ -85,18 +85,17 @@ let returnRandomString = function (questionArray){
  */
 
 app.get('/questions', function(req, res) {
-        /** här är response en array */
+        
+
 
         mongoClient.connect(mongoUrl, function (err, db){
             if(err){ console.log(err.message);
             }else{
             mongo.DB = db.db('books');
             let collection = mongo.DB.collection('bookCollection');
-            collection.find({}).limit(1).toArray(
+            collection.find({treeIndex: 1}).toArray(
                 function (err, results) {
-                    res.send({
-                        books: results
-                    })
+                    res.send(results[0]['value']);
                 }
             );
         }
@@ -119,10 +118,13 @@ let createNode = function(treeNum, value, children){
     }
 };
 
-app.post('/questions', function(req, res) {
 
-    let collector = [];
-    let queryString = '';
+/** template för vilket djur är det? hur skiljer man ... från ... ? */
+let collector = [];
+let queryString = '';
+
+
+app.post('/questions', function(req, res) {    
 
     /** får in arrayn med frågan och svaret från frontenden */
 
@@ -130,16 +132,18 @@ app.post('/questions', function(req, res) {
         collector = JSON.parse(data);
     });
 
+
     req.on('end', function () {
+
+        /*if(collector[1] starts with 'Is it a .... ? ')*/
+
         let response = "success";
-        let queryString = '';
 
         /** det är först här vi sparar noderna i objektform
          * inputen från frontenden är en array, det kommer trots allt alltid
          *  bara vara två svar
          * frontend=array, databasobjektet=objekt med utförligare info
          */
-
 
         /** om vi har en fråga, dvs. längden är större än 0, servern är
          * ju själv ansvarig för att skicka frågorna, så man kan anta
@@ -148,14 +152,8 @@ app.post('/questions', function(req, res) {
 
         if(collector[1].length>0){
     
-            if(collector[0]=='Y'){
-
+            if(collector[0]=='Y'||collector[0]=='N'){
                 queryString = '{value: '+collector[1]+'}';
-           
-            }else if(collector[0]=='N'){
-                
-                 queryString = '{value: '+collector[1]+'}';
-                 
             }else{
                 /** detta borde break:a hela funktionen */
                 res.send('ERROR');
@@ -164,35 +162,49 @@ app.post('/questions', function(req, res) {
 
         /** här ska vi söka med queryStringen i databasen för att hitta childrenen till
          * frågan
+         * för att få tag på nästa fråga
          */
 
         let returnAnimal = {};
+
+        /** härinne ska man  kolla om det är ett djur, om det inte är ett djur skickar vi tillbaka
+         * nästa Y/N fråga
+         * 
+         * om ett djur så skicka tillbaka frågan, är det ett... =  
+        */
+
+        
+
+     
+        let queryResult = '';
 
         mongoClient.connect(mongoUrl, function (err, db){
             if(err){ console.log(err.message);
             }else{
             mongo.DB = db.db('books');
             let collection = mongo.DB.collection('bookCollection');
-            collection.find(queryString).toArray(
-                function (err, results) {
-                    /** här har vi fått tillbaka ett objekt
-                    skicka tillbaka till*/
+            let results = collection.find({value: collector[1]}).toArray(function(err, results){
+                
+                queryResult = results[0]['children'][collector[0]];
 
-                    returnAnimal = results.children.collector[0];
-                    
-                    // man kanske inte måste skicka tillbaka härifrån, man
-                    // kanske bara kan spara det som ett objekt och fortsätta
-                    // använda det på något sätt
-                    
-                    // res.send({
-                    //     books: results
-                    // });
+                if(queryResult.endsWith('?')){
+                    res.send(queryResult);
+                }else if(queryResult !== null){
+                    res.send('Is it a ' + queryResult+'?');
                 }
-            );
+            });
         }
         });
 
         
+        /** om vi har kommit hit så är det ett djur och frågan är nej */
+
+        /** då är queryResult == null */
+
+        /** då får man använda collector igen 
+         * dvs. collector[1] är lika med djurnamnet */
+
+         /** så vad gör man då om man kommit ner till ett "löv"? */
 
         mongoClient.connect(mongoUrl, function (err, db){
             if(err){

@@ -156,4 +156,53 @@ childnodsobjektet hämtas ut,
 
     DETTA UPPREPAS TILLS VI FÅTT ETT NEJ PÅ ETT DJUR
 
+
+
+
+
 sen händer detta ...:
+
+
+	{gammal fråga}
+		  \
+			{djur}
+
+
+input med vilket djur det var man tänkte på
+
+{nytt djur}
+
+
+input med ny fråga
+
+{ny fråga}
+
+
+svaret för det nya djuret på den nya frågan
+ (säger Y för exemplet)
+ 
+{Y}
+
+
+
+	{gammal fråga}									treeIndex = oförändrad
+		\
+		{ny frågan} 								treeIndex = n
+	   /		  \
+	{*Y} : {nytt djur} 	{N}: {gammalt djur}  		treeIndex.Y = n+1    treeIndex.N = n+2
+
+
+
+
+
+treeIndex gör att vi inte kan gå uppåt så om frågan vi får tillbaka 
+har treeIndex typ 3 så måste find() ta hänsyn till det och treeIndex > 3
+men det spelar ingen roll eftersom vi hela tiden söker på children till varje nod
+
+treeIndex är bara relevant i början när vi laddar, så man hittar en nod 
+med treeIndex = 1
+
+och när man ska strukturera om trädet:
+
+
+

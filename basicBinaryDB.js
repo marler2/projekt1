@@ -1,70 +1,14 @@
-
 let mongo = require('mongodb'),
     mongoClient = mongo.MongoClient,
     mongoUrl = 'mongodb://localhost:27017/BinaryTree',
     mongoId = require('mongodb').ObjectID,
     mongoCollection = 'BTNodesComplete',
-    dataBaseConnection;
-
-
-/** BUGGAR:
- *  har inget sätt att avsluta connectionen dvs. genom db.close(),
- *  så man öppnar typ 10 connections bara för att byta plats på en nod
- */
-
-
-
-
-
-
-
-
-
-// let treeIndexCounter = 1;
-
-// /** det måste var plus 2 hela tiden, det ska se ut:
-//  * 
-//  *                        1
-//  *                  2           3
-//  *              4      5     6      7
-//  *          8     9  10 11 12 13  14    15 
-//  * 
-//  * 
-//  * 
-//  */
-
-// for(treeIndexCounter; treeIndexCounter< 20; treeIndexCounter++){
-
-    
-
-//     // sätta in dom också så att dom förhåller sig till varandra
-
-//     let insertNode = createNode(treeIndexCounter, [treeIndexCounter*2, treeIndexCounter*2+1]);
-//     // bara befolk databasen med lite random noder
-
-//     mongoClient.connect(mongoUrl, function (err, db){
-//         if(err){ console.log(err.message);
-//         }else{
-//         mongo.DB = db.db('BinaryTree');
-//         let collection = mongo.DB.collection('BTNodesComplete');
-//         let results = collection.insertOne(insertNode, function(err, results){
-//             if(err){
-//                 console.log(err.message);
-//             }else{
-//                 console.log("round: "+treeIndexCounter+" \n result: "+ results);
-//             }
-
-//         });
-//     }
-//     });
-// }
-
-
+    dataBaseConnection,
+    setTimeout = require('timers').setTimeout;
 
 // TEMPLATE FÖR NODERNA
 
-
-let createNode = function(treeNum, value, children){
+exports.createNode = function(treeNum, value, children){
 
     return {
         treeIndex: treeNum,
@@ -74,18 +18,80 @@ let createNode = function(treeNum, value, children){
             'N' : children[1]
         }
     }
-};    
-
-
-
-
+};
 
 // FIND NODE
     // returnar objektet
 
+let connectionToMDB = function (){
+    return new Promise(function (resolve, reject){
+        mongoClient.connect(mongoUrl, function(err, db){
+            //let DBconnection = db.db('BinaryTree');
+            //let collection = DBconnection.collection(mongoCollection);
+            if (err){
+                reject(err);
+            }else{
+                resolve(db);
+            }
+        });
+    });
+}
+
+// den avslutar connectionen för varje gång men resolve/rejectar också innan!!!!!
+// allt annat ska följa det här exemplet, man måste dela upp db och mongoClient.connect i två
+//för att kunna få med sig db påvägen
+
+let findNode = function (nodeValue) {
+
+    return new Promise(function (resolve,reject) {connectionToMDB().then(function(db){
+        let collection = db.db('BinaryTree').collection(mongoCollection);
+        collection.find({value: nodeValue}).toArray(function(err, results){
+            if(err){
+                reject(err);
+                db.close();
+            }else{
+                resolve(results[0]);
+                db.close();
+            }
+        });
+    }).catch(function (error) {
+        console.log(error);
+    });
+});
+}
+
+// Det är såhär det ska se ut på serversidan
+findNode('nod7').then(function(results){
+    console.log(results);
+});
+
+/////////////////////////////////////////////////////////////////
+
+// ATT GÖRA!!!:
+
+    
+    // NY INSERTNODE
 
 
-let findNode = function (findNodeValue) {
+    // NY DELETENODE
+
+
+
+////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.findNode = function (findNodeValue) {
 
     return new Promise( function (resolve, reject){    
         
@@ -99,36 +105,16 @@ let findNode = function (findNodeValue) {
             /** alla entrys kommer vara unika så behöver bara value för att hitta något */
             let results = collection.find({value : findNodeValue}).toArray(function(err, results){
                 if(err){ 
-                    reject(results);
+                    reject(err);
                 }else{
                     /** returner hela objektet */
                     resolve(results[0]);
                 }
-            });
-            
+            });  
         }
         });
     });
 }
-
-
-// findNode('nod3', 3).then(function (result) {
-//     console.log(result);
-//     /** men vi vill kunna pipea vidare värdet och childrenen och id:et så att det hamnar på
-//      *  ett nytt ställe
-//      */
-//     console.log('Id:et : ' + result['_id']);
-//     console.log('Child Y: ' + result['children']['Y']);
-//     console.log('Child N: ' + result['children']['N']);
-//     console.log('Value: ' + result['value']);
-//     console.log('TreeIndex: ' + result['treeIndex']);
-// });
-
-
-
-
-
-
 
 
 //  INSERT NY NODE
@@ -138,7 +124,7 @@ let findNode = function (findNodeValue) {
     //treenum är vart vi ska sätta den, children är en array av två som sätter in det iett
     // objekt av två
 
-let insertNode = function (treeNum, value, children) {
+exports.insertNode = function (treeNum, value, children) {
 
         return new Promise(function(resolve, reject){
 
@@ -165,15 +151,12 @@ let insertNode = function (treeNum, value, children) {
         });
 }
 
-// insertNode(1, 'Dog', ['nod2', 'nod3']).then(function (result) {
-//     console.log(result);
-// });
-
-
-
 // DELETE NODE
 
-let deleteNode = function (removeNodeVal, removeNodeTreeIndex){
+exports.deleteNode = function (removeNodeVal, removeNodeTreeIndex){
+
+    // man kanske kan returna det från connectionen, sen close:a den och sen fånga upp det i resolvet
+    // och då returna det igen? 
 
     return new Promise(function (resolve, reject) { 
         mongoClient.connect(mongoUrl, function (err, db){
@@ -198,20 +181,12 @@ let deleteNode = function (removeNodeVal, removeNodeTreeIndex){
     });
 }
 
-// deleteNode('DoggieDo', 19).then(function (results) {
-//     console.log(results);
-// });
-
-
-
 // MOVE NODE TO NEW TREEINDEX
 
-    // alltså FIND NODE A --> INSERT NODE --> *A DELETE NODE A
+    // value i parametern är för den vi ska hitta för att flytta
+    // treeNum är för dit vi vill att den ska gå till 
 
-// value i parametern är för den vi ska hitta för att flytta
-// treeNum är för dit vi vill att den ska gå till 
-
-let moveNode = function (newTreeIndex, value) {
+exports.moveNode = function (newTreeIndex, value) {
 
     findNode(value).then(function (resultFind) {
 
@@ -231,7 +206,7 @@ let moveNode = function (newTreeIndex, value) {
 
 // BYT PLATS PÅ TVÅ NODER I DATABASEN
 
-let changeNodes = function (nodeOne, nodeTwo){
+exports.changeNodes = function (nodeOne, nodeTwo){
 
     findNode(nodeOne).then( function (resultNodeOne) {
         findNode(nodeTwo).then(function (resultNodeTwo){
@@ -241,16 +216,6 @@ let changeNodes = function (nodeOne, nodeTwo){
     });
 }
 
-
-changeNodes('nod3', 'nod13');
-
-// CHANGE CHILDREN TO NODE
-    // göra en insert sätta på en helt random nod med dom två nya childrensen
-    // sen flytta tillbaka den  
-
-// inserta en fråga på ett ställe 
-
-//let changeChildToNode = function (){}
-
-// REDIRECT TO CHILD FROM PARENT
-    // använda find fast bara selecta children
+/** när man då får ett svar från sidan att man ska lägga in en ny fråga så: 
+ * 1) insertar man frågan, sätter in ett eller om två barn i dess children ---> insertNode()
+ * 3) sen moveNode för barnen, ett och ett ---> moveNode()*/

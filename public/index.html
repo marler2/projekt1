@@ -35,18 +35,21 @@
                 }); */
 
            function doPost(url, data){
-                $.post(url, JSON.stringify(data),function(result){
+                $.post(url, JSON.stringify(data),function ( result ){
                     //questionGenerator(doGet('/questions'));
-                    if(JSON.parse(result)=='ERROR'){
+
                         /**gör nånting så att användaren blir medveten om 
                          * vad för fel den har gjort
                         */
-                    }else{
+                    
                         /**här har vi fått tillbaka en query string från 
                          * servern
                         */
+                        if(JSON.parse(result).endsWith('?')){
+                            questionGenerator('Is it a ' + JSON.parse(result) + ' ?');
+                        }else{
                         questionGenerator(JSON.parse(result));
-                    }
+                        }
                 })
             };
 
@@ -56,7 +59,7 @@
                     $.get(url, function(data, status){ 
                         console.log(data);
                         /**selecta books från data objektet, första i arrayn och dess titel */
-                        questionGenerator(data['books'][0].title);
+                        questionGenerator(JSON.parse(data));
                     });
             }
             
@@ -84,7 +87,7 @@
 
 
                 $('input:text').each(function(){
-                    body.push($(this).val());
+                    body.push(($(this).val()));
                     //answerArray.push($(this).val());
                 });
 
@@ -93,7 +96,7 @@
                     //body.push($(this).text()+answerArray[index]);
                     });  
 
-                    console.log(body);
+                    console.log("såhär ser questionCollectorBodyn ut: " + body);
                 return body;
             };
             

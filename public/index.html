@@ -34,23 +34,28 @@
                     }
                 }); */
 
-           function doPost(url, data){
-                $.post(url, JSON.stringify(data),function ( result ){
+            let latestServerString = '';
+
+            function doPost(url, data){
+                $.post(url, JSON.stringify(data),function (result){
                     //questionGenerator(doGet('/questions'));
 
-                        /**gör nånting så att användaren blir medveten om 
-                         * vad för fel den har gjort
-                        */
-                    
                         /**här har vi fått tillbaka en query string från 
                          * servern
                         */
                         if(JSON.parse(result).endsWith('?')){
-                            questionGenerator('Is it a ' + JSON.parse(result) + ' ?');
+                            questionGenerator(JSON.parse(result));
+                            latestServerString = JSON.parse(result);
+                        }else if(JSON.parse(result) == 'CONGRATULATIONS'){
+                            // göra massa grejer som beror på om man gissat rätt
+                            questionGenerator('Grattis du gissade rätt!');
+                        }else if(JSON.parse(result) == 'RETRY'){
+                            questionGenerator('Du har använt alla dina 20 frågor!\n Vill du börja om?');
                         }else{
-                        questionGenerator(JSON.parse(result));
+                            questionGenerator('Is it a ' + JSON.parse(result) + ' ?');
+                            latestServerString = JSON.parse(result);
                         }
-                })
+                });
             };
 
             /**get request*/
@@ -58,8 +63,14 @@
             function doGet(url){
                     $.get(url, function(data, status){ 
                         console.log(data);
-                        /**selecta books från data objektet, första i arrayn och dess titel */
-                        questionGenerator(JSON.parse(data));
+                        if(JSON.parse(data).endsWith('?')){
+                            /**selecta books från data objektet, första i arrayn och dess titel */
+                            questionGenerator(JSON.parse(data));
+                            latestServerString = JSON.parse(data);
+                        }else{
+                            questionGenerator('Is it a '+ JSON.parse(data)+ '?');
+                            latestServerString = JSON.parse(data);
+                        }
                     });
             }
             
@@ -91,10 +102,12 @@
                     //answerArray.push($(this).val());
                 });
 
-                $('#questionNode tr').each(function(index){
-                    body.push($(this).text());            
-                    //body.push($(this).text()+answerArray[index]);
-                    });  
+                // $('#questionNode tr').each(function(index){
+                //     body.push($(this).text());            
+                //     //body.push($(this).text()+answerArray[index]);
+                //     });  
+
+                body.push(latestServerString);
 
                     console.log("såhär ser questionCollectorBodyn ut: " + body);
                 return body;

@@ -10,6 +10,8 @@ let express = require('express'),
  
 app.use(express.static(path.join(__dirname + '/public')));
 
+
+
 /** 20 frågor är maxxet, den gränsen sätter man på serversidan
 * iom hur långt ner man kommit i trädet
 */
@@ -30,8 +32,8 @@ app.get('/questions', function(req, res) {
             if(err){ console.log(err.message);
             }else{
             mongo.DB = db.db('BinaryTree');
-            let collection = mongo.DB.collection('BTNodesComplete');
-            collection.find({treeIndex: 57}).toArray(
+            let collection = mongo.DB.collection('testDjur');
+            collection.find({treeIndex: 1}).toArray(
                 function (err, results) {
                     res.send(JSON.stringify(results[0]['value']));
                 }
@@ -46,12 +48,12 @@ let queryString = '';
 let dataBaseObj = {};
 
 
-let serverGuess;
-let serverGuessNewAnimal;
-let serverGuessNewQuestion;
-let serverGuessNewQuestionAnswer;
-let treeIndexForNewNode;
+let serverGuess = false;
+let serverGuessOne = false;
+let serverGuessTwo = false;
+let treeIndexForNewNode = 1;
 let newInsertArray = {"guessedAnimal":"", "newAnimal":"", "newQuestion":""};
+let questionCounter = 0;
 
 app.post('/questions', function(req, res) {    
 
@@ -65,6 +67,8 @@ app.post('/questions', function(req, res) {
 
     req.on('end', function () {
 
+        console.log(collector);
+
          /* inputen från frontenden är en array med längd 2*/
         /** om vi har en fråga, dvs. längden är större än 0*/
 
@@ -74,85 +78,79 @@ app.post('/questions', function(req, res) {
             
             //SERVERGUESS MÅSTE LIGGA UTANFÖR POST REQUESTEN
 
+            if(questionCounter==20){
+                res.send(JSON.stringify('QUESTIONLIMIT'));
+            }
+
+
             if(!serverGuess){
-                mongoconnect.find(collector[1]).then(function(results){
-                    mongoconnect.find(results['children']).then(function(resultsInner){
-                        if(resultsInner['Y'] == '' && resultsInner['N'] == ''){
-                            //då vet man att man har ett djur
+                mongoConnection.findNode(collector[1]).then(function(results){
+                    if(results['children']['Y']==''&&results['children']['N']==''){
+                        //vi vet att det är ett djur
+                        if(collector[0] == 'N'){
+                            //servern går in i "gissnings-mode"
+                            //sätter in vad servern gissade i arrayn som sen ska insertas i databasen
+                            newInsertArray["guessedAnimal"]=collector[1];
+                            treeIndexForNewNode = results['treeIndex'];
                             serverGuess = true;
-                            treeIndexForNewNode = resultsInner['treeIndex'];
-                            res.send(JSON.stringify('Is it a ' + results['children'][collector[0]]+'?'));
-                        }else{
-                            // då vet man att man har en fråga
-                            res.send(JSON.stringify(results['children'][collector[0]]));
+                            res.send(JSON.stringify('What animal where you thinking of?'));
+                            // om detta stämmer går vi över till nästa block, dvs. serverGuess=true
+                        }else if(collector[0] == 'Y'){
+                            // det är bättre att frontenden får ta hand om det
+                            // då den ska refresha sidan och fixa andra grejer
+                            res.send(JSON.stringify('CONGRATULATIONS'));
                         }
-                    });
+                    }else{
+                        //något av childsen innehåller något, det är antagligen en fråga
+                        mongoConnection.findNode(collector[1]).then(function(results){
+                            questionCounter++;
+                            res.send(JSON.stringify(results['children'][collector[0]]));
+                        });
+                    }
+            }).catch(function(error){
+                    console.log('Something went wrong with findNode():' + error);
                 });
-                // om vi vet att förra request skickade ett djur
+               // om vi vet att förra request skickade ett djur
             }else if(serverGuess){
                 //om svaret som komemr tillbaka är ett djur
-                if(collector[0]=='Y'&&newInsertArray['guessedAnimal']==''){
-                    res.send('Congratulations!')
-                    serverGuess = false;
-                }else if(collector[0]=='N'&&newInsertArray['guessedAnimal']==''){
+                if(newInsertArray["newAnimal"]==""){
+                    console.log('steg1: vi har fått ett nytt djur');
                     //då har vi gissat fel och får förbereda en array som ska lagras
-                    newInsertArray['guessedAnimal']=collector[1];
-                    serverGuessNewAnimal = true;
-                    res.send(JSON.stringify('What animal did you think of?'));
-                }else if(serverGuess && serverGuessNewAnimal){
-                    //då har vi fått ett nytt djur
-                    newInsertArray['newAnimal'] = collector[0]
-                    serverGuessNewAnimal = false;
-                    serverGuessNewQuestion = true;
+                    newInsertArray["newAnimal"]=collector[0];
+                    serverGuessOne = true;
                     res.send(JSON.stringify('What question would you use to distinguish '+newInsertArray['guessedAnimal']+' from '+newInsertArray['newAnimal']+'?'));
-                }else if(serverGuess && serverGuessNewQuestion){
-                    //dvs. vi har fått en ny fråga för att skilja åt
-                    newInsertArray['newQuestion']=collector[0];
-                    serverGuessNewQuestion = false;
-                    serverGuessNewQuestionAnswer = true;
-                    res.send(JSON.stringify('What is the answer for '+ newInsertArray['newAnimal']+'?'))
-                }else if(serverGuess && serverGuessNewQuestionAnswer&&newInsertArray['newQuestion']!=''){
+                }else if(serverGuess && serverGuessOne){
+                    console.log('steg2: vi har fått en ny fråga');
+                    //då har vi fått ett nytt djur
+                    newInsertArray['newQuestion'] = collector[0];
+                    serverGuessOne = false;
+                    serverGuessTwo = true;
+                    res.send(JSON.stringify('What is the answer for '+ newInsertArray['newAnimal']+'?'));
+                }else if(serverGuessTwo){
+                    console.log('steg3: vi har fått svaret på den nya frågan och sätter in i databasen..');
                     //om vi har kommit hit så ska vi lägga in en ny fråga på gamla djurets plats och lägga det gamla djuret under frågan
                     //samt det nya djuret
-                    serverGuessNewQuestionAnswer = false;
+                    console.log('kommer vi hit?');
+                    serverGuessTwo = false;
                     serverGuess = false;
                     if(collector[0]=='Y'){
-                        mongoconnect.insertNode(treeIndexForNewNode, newInsertArray['newQuestion'],[newInsertArray['newAnimal'], newInsertArray['guessedAnimal']]);
+                        mongoConnection.insertNode(treeIndexForNewNode, newInsertArray['newQuestion'],[newInsertArray['newAnimal'], newInsertArray['guessedAnimal']]);
                         //om Y så ska den nya noden vara n*2 och den gamla (n*2)+1
-                        mongoconnect.insertNode(treeIndexForNewNode*2, newInsertArray['newAnimal'], ['','']);
-                        mongoconnect.moveNode((treeIndexForNewNode*2)+1, newInsertArray['guessedAnimal']);
+                        mongoConnection.insertNode(treeIndexForNewNode*2, newInsertArray['newAnimal'], ['','']);
+                        mongoConnection.moveNode((treeIndexForNewNode*2)+1, newInsertArray['guessedAnimal']);
                     }else if(collector[0]=='N'){
-                        mongoconnect.insertNode(treeIndexForNewNode, newInsertArray['newQuestion'],[newInsertArray['guessedAnimal'], newInsertArray['newAnimal']]);
+                        mongoConnection.insertNode(treeIndexForNewNode, newInsertArray['newQuestion'],[newInsertArray['guessedAnimal'], newInsertArray['newAnimal']]);
                         //om N så ska den nya noden vara (n*2+1) och den gamla n*2
-                        mongoconnect.moveNode(treeIndexForNewNode*2, newInsertArray['guessedAnimal']);
-                        mongoconnect.insertNode((treeIndexForNewNode*2)+1, newInsertArray['newAnimal'], ['','']);
+                        mongoConnection.moveNode(treeIndexForNewNode*2, newInsertArray['guessedAnimal']);
+                        mongoConnection.insertNode((treeIndexForNewNode*2)+1, newInsertArray['newAnimal'], ['','']);
                     }
                     newInsertArray['guessedAnimal']='';
                     newInsertArray['newAnimal']='';
                     newInsertArray['newQuestion']='';
+                    res.send(JSON.stringify('RETRY'));
                 }
             }
-
-            
-
-            
-
-            /** när vi vet att vi har fått en ny fråga så inserta den */
-            /** dela upp conditionens och mongodb requestsen */
-
-
-        /** hitta den i databasen för att se om den har några barn 
-         *  skicka tillbaka barnet som svaret pekat mot
-        */
-
-        // if(dataBaseObj['children'][collector[0]]){
-        //     res.send(dataBaseObj['children'][collector[0]]);
-        // }else{
-        //     /** så har den inga barn, alltså är det ett djur */
-        //     res.send('')
-        // }
-  
-    });
+});
 });
 
 app.listen(8000, 'localhost', function(){
@@ -164,97 +162,22 @@ app.listen(8000, 'localhost', function(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// if(collector[0]=='Y'||collector[0]=='N'){
-
-//     /** använder findNode dels för att testa men också returna */
-
-//     mongoConnection.findNode(collector[1]).then(function (results){
-        
-//         if(results['value'].length>0){
-
-//             if(results['children'][collector[0]]){
-
-//                 if(results['children'][collector[0]].endsWith('?')){
-//                     /** det här är en fråga */
-//                     console.log("såhär ser begäran från frontenden ut: " + JSON.stringify(results['children'][collector[0]]));
-//                     res.send(JSON.stringify(results['children'][collector[0]]));
-//                 }else{
-//                         /** det här är ett djur */
-//                         res.send(JSON.stringify("is it a " + results['value'] + " ?"));
-//                 }}
-//         }else{
-//             console.log("does not exist in database");
-//         }});
-
-// }else{
-//     /** fixa på f
-//      * rontenden vad som ska hända om dom inte har skickat något*/
-//     res.send(JSON.stringify('NOENTRY'));
-// }
-
-
-
-// mongoClient.connect(mongoUrl, function (err, db){
-//     if(err){ console.log(err.message);
-//     }else{
-//     mongo.DB = db.db('books');
-//     let collection = mongo.DB.collection('bookCollection');
-//     let results = collection.find({value: collector[1]}).toArray(function(err, results){
-        
-//         queryResult = results[0]['children'][collector[0]];
-
-//         if(queryResult.endsWith('?')){
-//             res.send(queryResult);
-//         }else if(queryResult !== null){
-//             res.send('Is it a ' + queryResult+'?');
-//         }
-//     });
-// }
-// });
-
-
-
-// mongoClient.connect(mongoUrl, function (err, db){
-//     if(err){
-//         console.log("some problem with mongodb");
-//     }else{
-//         if(!mongo.DB){
-//             /** om redan connectad */
-//             mongo.DB = db.db('books');
-//         }
-//         let collection = mongo.DB.collection('bookCollection');
-//         collection.insertOne(POSTquestion, function(err, results){
-//             if(err){
-//                 res.send(err.message);
-//             }else{
-//                 console.log(results.result);
-//                 db.close();
-//             }
-//         });
-//     }
-// });
+/**
+                    console.log('Result från outer findNode : ' + results['value']);
+                    mongoConnection.findNode(results['children']).then(function(resultsInner){
+                        console.log('Result från inner findNode' + resultsInner);
+                        if(resultsInner === undefined){
+                            //då vet man att man har ett djur
+                            //serverGuess = true;
+                            treeIndexForNewNode = results['treeIndex'];
+                            res.send(JSON.stringify(results['children'][collector[0]]));
+                        }else{
+                            // då vet man att man har en fråga
+                            res.send(JSON.stringify(results['children'][collector[0]]));
+                        }
+                    }).catch(function (error){
+                       console.log(error);
+                       // är man redan på ett child, dvs... exempelvis första entryn i hela trädet
+                       //serverGuess = true;
+                       res.send(JSON.stringify('What animal where you thinking of?'));
+                }); */

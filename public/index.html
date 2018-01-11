@@ -14,7 +14,7 @@
         <table id="questionForm">
             <tr id="questionNode"></tr>       
         </table>
-        <input type="submit" id="btnSubmit" value="Send question(s)">
+        <input type="submit" id="btnSubmit" value="Send reply">
     <script type="text/javascript">
         $(document).ready(function(){
 
@@ -49,8 +49,11 @@
                         }else if(JSON.parse(result) == 'CONGRATULATIONS'){
                             // göra massa grejer som beror på om man gissat rätt
                             questionGenerator('Grattis du gissade rätt!');
+                            //location.reload(false) för att ladda om sidan
                         }else if(JSON.parse(result) == 'RETRY'){
-                            questionGenerator('Du har använt alla dina 20 frågor!\n Vill du börja om?');
+                            //location.reload(false); för att ladda om sidan
+                        }else if(JSON.parse(result) == 'QUESTIONLIMIT'){
+                            questionGenerator('Du har använt dina 20 frågor');
                         }else{
                             questionGenerator('Is it a ' + JSON.parse(result) + ' ?');
                             latestServerString = JSON.parse(result);

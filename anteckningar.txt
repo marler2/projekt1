@@ -205,4 +205,20 @@ med treeIndex = 1
 och när man ska strukturera om trädet:
 
 
+--------------------------------------------------------------
 
+Man ska bara redigera 3 lager så att säga 
+
+Förälder
+barn
+barn till barnet, barn till barnet
+
+Does it bark?
+N
+Is it a horse?
+N
+
+ *sätter in ny fråga* där vi gissar på djuret
+ *sätter in nytt djur* under där vi gissat på djuret
+
+ *ändrar children i Förälder noden* till value av frågan vi har satt in

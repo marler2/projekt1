@@ -64,8 +64,48 @@ exports.findNode = function (nodeValue) {
 });
 }
 
-// "private"
+// EN METOD SOM SÖKER PÅ INDEX OCH UPPDATERAR DESS BARN
 
+exports.updateChildrenOnNode = function (nodeIndex, childrenValY, childrenValN){
+    
+    return new Promise(function (resolve, reject) {connectionToMDB().then(function (db) {
+        let collection = db.db('BinaryTree').collection(mongoCollection);
+        collection.updateOne({treeIndex : nodeIndex}, {$set : {children: {Y: childrenValY, N: childrenValN}}}, function (err, results){
+            if(err){
+                reject(err);
+                db.close();
+            }else{
+                resolve(results);
+                db.close();
+            }
+        });
+    }).catch(function (error){
+        console.log(error);
+    });
+});
+
+}
+
+// kolla om databasen finns
+exports.findDatabase = function (dbVal) {
+
+    return new Promise(function (resolve,reject) {connectionToMDB().then(function(db){
+        let database = db.db('BinaryTree');
+        database.listCollections({name: dbVal}).next(function (err, result) {
+
+            if(err){
+                reject(err);
+                db.close();
+            }else{
+                resolve(result);
+                db.close();
+            }
+        });
+    }).catch(function (error){
+        console.log(error);  
+    });
+    });
+}
 
 // INSERT NEW NODE
 
@@ -91,13 +131,8 @@ exports.insertNode = function (treeNum, value, children) {
 });}
 
 
-// FÖRSTA ENTRYN
 
-    // insertNode(1, "Dog", ['','']).then(function (results){
-    //     console.log(results);
-    // }).catch(function (results){
-    //     console.log('something went wrong: ' + results);
-    // });
+  
 
 
 // DELETE NODE

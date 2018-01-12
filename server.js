@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname + '/public')));
 
 //första entryn i databasen/skapandet av databasen om det/den inte finns
 
-mongoConnection.findDatabase('BinaryTree').then(function (result){
+mongoConnection.findDatabase('testDjur').then(function (result){
     if(result===null){
         mongoConnection.insertNode(1, "Dog", ['','']).then(function (results){
             console.log('inserted first animal : ' + results);
@@ -72,8 +72,8 @@ app.post('/questions', function(req, res) {
                 res.send(JSON.stringify('QUESTIONLIMIT'));
             }
 
-            if(collector[0]!='Y'||collector[0]!='N'){
-                res.send(JSON.stringify('INPUTERROR'));
+            if(collector[0]=='y'||collector[0]=='n'){
+                collector[0] = collector[0].toUpperCase();
             }
 
             if(!serverGuess){

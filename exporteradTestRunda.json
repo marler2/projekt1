@@ -1,0 +1,253 @@
+{
+	"_id": {
+		"$oid": "5a58745bf797d120e866c2cc"
+	},
+	"treeIndex": 1,
+	"value": "Does it bark?",
+	"children": {
+		"Y": "Does it live in the wild?",
+		"N": "Can you ride it?"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a587478f797d120e866c2cf"
+	},
+	"treeIndex": 3,
+	"value": "Can you ride it?",
+	"children": {
+		"Y": "Is it used in sports?",
+		"N": "Is it a predator?"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5874a0f797d120e866c2d1"
+	},
+	"treeIndex": 2,
+	"value": "Does it live in the wild?",
+	"children": {
+		"Y": "Wolf",
+		"N": "Does it live in Australia?"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5874a0f797d120e866c2d2"
+	},
+	"treeIndex": 4,
+	"value": "Wolf",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a587500f797d120e866c2d4"
+	},
+	"treeIndex": 10,
+	"value": "Tazmanian devil",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a587500f797d120e866c2d5"
+	},
+	"treeIndex": 5,
+	"value": "Does it live in Australia?",
+	"children": {
+		"Y": "Tazmanian devil",
+		"N": "Is it so domesticated you cant really call it a dog anymore?"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5883953fbd2e0e70daf2ae"
+	},
+	"treeIndex": 7,
+	"value": "Is it a predator?",
+	"children": {
+		"Y": "Cat",
+		"N": "Is it fast?"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5883f83fbd2e0e70daf2b1"
+	},
+	"treeIndex": 15,
+	"value": "Is it fast?",
+	"children": {
+		"Y": "Mouse",
+		"N": "Does it have a shell?"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5883f93fbd2e0e70daf2b3"
+	},
+	"treeIndex": 30,
+	"value": "Mouse",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5884533fbd2e0e70daf2b5"
+	},
+	"treeIndex": 11,
+	"value": "Is it so domesticated you cant really call it a dog anymore?",
+	"children": {
+		"Y": "Is it fluffy?",
+		"N": "Dog"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5884543fbd2e0e70daf2b6"
+	},
+	"treeIndex": 23,
+	"value": "Dog",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5884c83fbd2e0e70daf2b7"
+	},
+	"treeIndex": 6,
+	"value": "Is it used in sports?",
+	"children": {
+		"Y": "Horse",
+		"N": "Mule"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5884c83fbd2e0e70daf2b8"
+	},
+	"treeIndex": 13,
+	"value": "Mule",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5884c93fbd2e0e70daf2b9"
+	},
+	"treeIndex": 12,
+	"value": "Horse",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5887717bb115275819da1d"
+	},
+	"treeIndex": 63,
+	"value": "Pig",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5887717bb115275819da1e"
+	},
+	"treeIndex": 31,
+	"value": "Does it have a shell?",
+	"children": {
+		"Y": "Turtle",
+		"N": "Pig"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a5887727bb115275819da1f"
+	},
+	"treeIndex": 62,
+	"value": "Turtle",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a588adcfd42fb2b986edf2e"
+	},
+	"treeIndex": 45,
+	"value": "Shitzu",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a588adcfd42fb2b986edf2f"
+	},
+	"treeIndex": 22,
+	"value": "Is it fluffy?",
+	"children": {
+		"Y": "Pudel",
+		"N": "Shitzu"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a588addfd42fb2b986edf30"
+	},
+	"treeIndex": 44,
+	"value": "Pudel",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a588c52fc9c80274498042d"
+	},
+	"treeIndex": 28,
+	"value": "Snake",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}
+{
+	"_id": {
+		"$oid": "5a588c52fc9c80274498042e"
+	},
+	"treeIndex": 14,
+	"value": "Does it crawl?",
+	"children": {
+		"Y": "Snake",
+		"N": "Cat"
+	}
+}
+{
+	"_id": {
+		"$oid": "5a588c53fc9c80274498042f"
+	},
+	"treeIndex": 29,
+	"value": "Cat",
+	"children": {
+		"Y": "",
+		"N": ""
+	}
+}

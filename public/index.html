@@ -10,35 +10,35 @@
        
 </head>
 <body>
-    <h1 id="question">Animal quiz</h1>
-        <table id="questionForm">
-            <tr id="questionNode"></tr>       
-        </table>
-        <input type="submit" id="btnSubmit" value="Send reply">
+    <h1 id="pageHead">Welcome to animal quiz</h1><br/>
+    <h5 id="pageSecondHead">The rules are as following:<br/>
+                            You think of an animal and if i guess right i win,<br/>
+                            if i cant guess the animal i will lose and query you<br/> 
+                            about the animal and remember the animal for future<br/>
+                            games. You answer the questions with "Y" or "N".<br/><br/>
+                            <strong>Think of an animal, then press enter to begin!</strong></h5>
+        <div id="roundStarted">
+            <table id="questionForm">
+                <tr id="questionNode"></tr>       
+            </table>
+            <input type="submit" id="btnSubmit" value="Send reply"> 
+        </div>
     <script type="text/javascript">
         $(document).ready(function(){
-
-            /** om gissat rätt så komma upp ett grattis med
-            hur många frågor det tog att komma dit, antalet frågor
-            sköts av servern, men meddelandet sköts här*/
-
-            /**lägg in promises .then(success(), fail())
-            anonyma funktioner*/
-
-            /**separera ut jqueryn och serverns javascript i andra
-            filer !!*/
-
-            /*  $(document).on("keypress", function (e) {
-                    if(e.which == "enter"){
-                        doGet('/questions');
-                    }
-                }); */
+            $('#roundStarted').hide();
+            $(document).keypress(function(e) {
+                if(e.which == 13) {
+                    $('#pageHead').text('Animal quiz');
+                    $('#pageSecondHead').text('round started');
+                    $('#roundStarted').show();
+                    doGet('/questions');
+                }
+            });
 
             let latestServerString = '';
 
             function doPost(url, data){
                 $.post(url, JSON.stringify(data),function (result){
-                    //questionGenerator(doGet('/questions'));
 
                         /**här har vi fått tillbaka en string från servern
                          * beroende på vad det är för innehåll eller om spelet har nått sitt slut
@@ -62,6 +62,11 @@
                             setTimeout(function(){
                                 location.reload(false);
                             }, 5000);
+                        }else if(JSON.parse(result) == 'INPUTERROR'){
+                            questionGenerator('You entered the wrong kind of input, try again!');
+                            setTimeout(function(){
+                                location.reload(false);
+                            }, 5000);
                         }else{
                             questionGenerator('Is it a ' + JSON.parse(result) + ' ?');
                             latestServerString = JSON.parse(result);
@@ -75,7 +80,6 @@
                     $.get(url, function(data, status){ 
                         console.log(data);
                         if(JSON.parse(data).endsWith('?')){
-                            /**selecta books från data objektet, första i arrayn och dess titel */
                             questionGenerator(JSON.parse(data));
                             latestServerString = JSON.parse(data);
                         }else{
@@ -90,12 +94,9 @@
             function questionGenerator(Question){
 
                 $('#questionNode tr').remove();
-
                 let html = "";
-                    
                 html = "<tr><td><p id='question'>"+Question+
                             "</p><input type='text' name='question'></td></tr><br/>"
-                    
                 $('#questionNode').append(html);
 
             };
@@ -106,32 +107,15 @@
             function questionCollector(){
                 
                 let body = [];
-
-
                 $('input:text').each(function(){
                     body.push(($(this).val()));
-                    //answerArray.push($(this).val());
                 });
-
-                // $('#questionNode tr').each(function(index){
-                //     body.push($(this).text());            
-                //     //body.push($(this).text()+answerArray[index]);
-                //     });  
-
                 body.push(latestServerString);
-
-                    console.log("såhär ser questionCollectorBodyn ut: " + body);
                 return body;
             };
-            
-            /** detta händer när sidan laddas*/
-            /**uppdaterar frågefältet*/
 
-            doGet('/questions');
-
-
-              /**
-             *  Submit click event 
+            /**
+             *  click eventet, det som triggar postrequesten
              */
 
             $('#btnSubmit').click(function(event) {
@@ -143,9 +127,7 @@
                 */
 
                 doPost('/questions',questionCollector());
-
             });
-
         });   
     </script> 
 </body>

@@ -40,20 +40,28 @@
                 $.post(url, JSON.stringify(data),function (result){
                     //questionGenerator(doGet('/questions'));
 
-                        /**här har vi fått tillbaka en query string från 
-                         * servern
+                        /**här har vi fått tillbaka en string från servern
+                         * beroende på vad det är för innehåll eller om spelet har nått sitt slut
+                         * så uppdateras textfältet
                         */
                         if(JSON.parse(result).endsWith('?')){
                             questionGenerator(JSON.parse(result));
                             latestServerString = JSON.parse(result);
                         }else if(JSON.parse(result) == 'CONGRATULATIONS'){
-                            // göra massa grejer som beror på om man gissat rätt
-                            questionGenerator('Grattis du gissade rätt!');
-                            //location.reload(false) för att ladda om sidan
+                            questionGenerator('I won!');
+                            setTimeout(function (){
+                                location.reload(false);
+                            },5000);
                         }else if(JSON.parse(result) == 'RETRY'){
-                            //location.reload(false); för att ladda om sidan
+                            questionGenerator('I lost!');
+                            setTimeout(function(){
+                                location.reload(false);
+                            }, 5000);
                         }else if(JSON.parse(result) == 'QUESTIONLIMIT'){
-                            questionGenerator('Du har använt dina 20 frågor');
+                            questionGenerator('You have used all your 20 questions, i win!');
+                            setTimeout(function(){
+                                location.reload(false);
+                            }, 5000);
                         }else{
                             questionGenerator('Is it a ' + JSON.parse(result) + ' ?');
                             latestServerString = JSON.parse(result);

@@ -2,7 +2,7 @@ let express = require('express'),
     path = require('path'),
     url = require('url'),
     app = express(),
-    mongoConnection = require('./basicBinaryDB');
+    mongoConnection = require('./BinaryDB');
     mongo = require('mongodb'),
     mongoClient = mongo.MongoClient,
     mongoUrl = 'mongodb://localhost:27017/BinaryTree',
@@ -10,12 +10,12 @@ let express = require('express'),
  
 app.use(express.static(path.join(__dirname + '/public')));
 
-//första entryn i databasen om den inte finns
+//första entryn i databasen/skapandet av databasen om det/den inte finns
 
 mongoConnection.findDatabase('testDjur').then(function (result){
     if(result===null){
         mongoConnection.insertNode(1, "Dog", ['','']).then(function (results){
-            console.log(results);
+            console.log('inserted first animal : ' + results);
         }).catch(function (results){
             console.log('something went wrong: ' + results);
         });
@@ -25,6 +25,8 @@ mongoConnection.findDatabase('testDjur').then(function (result){
 }).catch(function (error){
     console.log('Something went wrong with finding the database');
 });
+
+//getrequesten när sidan laddas
 
 app.get('/questions', function(req, res) {
 
@@ -43,15 +45,16 @@ app.get('/questions', function(req, res) {
         });
 });
 
+
+// alla variabler som behövs för att servern ska kunna sortera och processa frontendens svar
+
 let collector = [];
 let serverGuess = false;
 let serverGuessOne = false;
 let serverGuessTwo = false;
 let treeIndexForNewNode = 1;
 let newInsertArray = {"guessedAnimal":"", "newAnimal":"", "newQuestion":""};
-let parentNodeY = '';
 let questionCounter = 0;
-let treePathLeft;
 
 app.post('/questions', function(req, res) {    
 
@@ -65,55 +68,34 @@ app.post('/questions', function(req, res) {
 
     req.on('end', function () {
 
-        console.log(collector);
-
-
-            //innan man skickar tillbaka en childnode som är ett djur så måste man veta att den
-            // inte har några childnodes: man får alltså göra en ny findNode() 
-
             if(questionCounter==20){
                 res.send(JSON.stringify('QUESTIONLIMIT'));
             }
 
-            // KAN MAN GÅ VÄNSTER I TRÄDET OCH ÄNDÅ UPPDATERA FÖRÄLDERNODEN KORREKT?
-
             if(!serverGuess){
                 mongoConnection.findNode(collector[1]).then(function(results){
                     if(results['children']['Y']==''&&results['children']['N']==''){
-                        //vi vet att det är ett djur
+                        //vi vet att det är ett djur eftersom den inte har några childnodes
                         if(collector[0] == 'N'){
-                            //servern går in i "gissnings-mode"
-                            //sätter in vad servern gissade i arrayn som sen ska insertas i databasen
+                            //servern går in i "gissnings-läge" serverGuess = true
+                            //sätter in vad servern gissade på för djur i arrayn som sen ska insertas i databasen
                             newInsertArray["guessedAnimal"]=collector[1]; 
-
-
-
-
-
-                            //collector[0] här säger vilken väg vi har tagit i trädet!
-                            // använda det för att uppdatera föräldranoden!!
-
-
-
-
-
                             treeIndexForNewNode = results['treeIndex'];
                             treeIndexForParent = Math.ceil((results['treeIndex']/2)-1);
-                            console.log('förädlernodens index: ' + treeIndexForParent);
                             serverGuess = true;
                             res.send(JSON.stringify('What animal where you thinking of?'));
                             // om detta stämmer går vi över till nästa block, dvs. serverGuess=true
                         }else if(collector[0] == 'Y'){
-                            // det är bättre att frontenden får ta hand om det
-                            // då den ska refresha sidan och fixa andra grejer
+                            // användaren har gissat rätt
+                            // frontenden får ta hand om det
+                            // vi skickar tillbaka en sträng som den får använda för att utföra något
                             res.send(JSON.stringify('CONGRATULATIONS'));
                         }
                     }else{
-                        //något av childsen innehåller något, det är antagligen en fråga
                         mongoConnection.findNode(collector[1]).then(function(results){
+                            //questioncounter för att se om vi har kommit upp i 20 frågor än
                             questionCounter++;
-                            parentNodeY = results['children']['Y'];
-                            // så man får frågan från 
+                            // by default så skickar tillbaka nästa fråga / djur
                             res.send(JSON.stringify(results['children'][collector[0]]));
                         });
                     }
@@ -121,41 +103,39 @@ app.post('/questions', function(req, res) {
                     console.log('Something went wrong with findNode():' + error);
                 });
                // om vi vet att förra request skickade ett djur
+               //så påbörjar servern att sampla ihop en ny array för att lagra i databasen
             }else if(serverGuess){
-                //om svaret som komemr tillbaka är ett djur
                 if(newInsertArray["newAnimal"]==""){
-                    console.log('steg1: vi har fått ett nytt djur');
-                    //då har vi gissat fel och får förbereda en array som ska lagras
+                    //då har vi gissat fel och fått ett nytt djur att lagra
                     newInsertArray["newAnimal"]=collector[0];
                     serverGuessOne = true;
                     res.send(JSON.stringify('What question would you use to distinguish '+newInsertArray['guessedAnimal']+' from '+newInsertArray['newAnimal']+'?'));
                 }else if(serverGuessOne){
-                    console.log('steg2: vi har fått en ny fråga');
-                    //då har vi fått ett nytt djur
+                    //då har vi fått en ny fråga
                     newInsertArray['newQuestion'] = collector[0];
                     serverGuessOne = false;
                     serverGuessTwo = true;
                     res.send(JSON.stringify('What is the answer for '+ newInsertArray['newAnimal']+'?'));
                 }else if(serverGuessTwo){
-                    console.log('steg3: vi har fått svaret på den nya frågan och sätter in i databasen..');
-                    //om vi har kommit hit så ska vi lägga in en ny fråga på gamla djurets plats och lägga det gamla djuret under frågan
-                    //samt det nya djuret
-                    console.log('kommer vi hit?');
+                    //hela arrayn som är nödvändig för att generera ett nytt objekt i databasen är färdig och vi kan börja lagra
                     serverGuessTwo = false;
                     serverGuess = false;
                     if(collector[0]=='Y'){
+
+                        // lägger in den nya frågan
 
                         mongoConnection.insertNode(treeIndexForNewNode, 
                                                     newInsertArray['newQuestion'],
                                                     [newInsertArray['newAnimal'], 
                                                     newInsertArray['guessedAnimal']]);
 
-                        //om Y så ska den nya noden vara n*2 och den gamla (n*2)+1
+                        //lägger in det nya djuret
+                        //om Y så ska den nya noden vara n*2(Y platsen) och den gamla (n*2)+1 (N platsen)
 
                         mongoConnection.insertNode(treeIndexForNewNode*2, 
                                                     newInsertArray['newAnimal'], 
                                                     ['','']);
-
+                        //flyttar det gamla djuret
                         mongoConnection.moveNode((treeIndexForNewNode*2)+1, 
                                                     newInsertArray['guessedAnimal']);
 
@@ -165,11 +145,14 @@ app.post('/questions', function(req, res) {
                                                     newInsertArray['newQuestion'],
                                                     [newInsertArray['guessedAnimal'], 
                                                     newInsertArray['newAnimal']]);
-
-                        //om N så ska den nya noden vara (n*2+1) och den gamla n*2
+                        //flyttar det nya djuret
 
                         mongoConnection.moveNode(treeIndexForNewNode*2, 
                                                     newInsertArray['guessedAnimal']);
+                        
+
+                        //lägger in det nya djuret
+                        //om N så ska den nya noden vara (n*2+1)(N platsen) och den gamla n*2(Y platsen)
 
                         mongoConnection.insertNode((treeIndexForNewNode*2)+1, 
                                                     newInsertArray['newAnimal'], 
@@ -177,31 +160,19 @@ app.post('/questions', function(req, res) {
                         
                     }
 
+                    // ser till så att alla treeIndex matchar childrennoderna och vice versa
 
-                    // FIXA IMORGON FREDAG!!!
+                    mongoConnection.treeUpdate();
 
-                    //man uppdaterar ju alltid frågan på N noden
-
-                    /** Vart ska dom vara? bereonde på om vi går höger eller vänster i trädet
-                     * ska någon av dom aktiveras men dom kan bara aktiveras här nere, så newInsertArray 
-                     * har några entrys
-                     * 
-                     *  mongoConnection.updateChildrenOnNode(treeIndexForParent, 
-                                                    newInsertArray['newQuestion'],
-                                                    newInsertArray['guessedAnimal']);
-                        
-                        Här ska det vara som det var innan 
-                        
-                        mongoConnection.updateChildrenOnNode(treeIndexForParent, 
-                                                        newInsertArray['guessedAnimal'],
-                                                        newInsertArray['newQuestion']);
-                         */
+                    //rensar alla variabler "cachet"
 
                     newInsertArray['guessedAnimal']='';
                     newInsertArray['newAnimal']='';
                     newInsertArray['newQuestion']='';
                     questionCounter = 0;
-                
+
+                    //skickar tillbaka ett värde så frontenden vet vad den ska göra
+
                     res.send(JSON.stringify('RETRY'));
                 }
             }
